@@ -5,12 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gehalt
+namespace GehaltIEnumerable
 {
     /// <summary>
     /// Beispiel für die Verwendung einer Aufzählung
+    /// Durch die generische Schnittstelle ist Rückgabetyp in "foreach" definiert
     /// </summary>
-    public class CGehaltCollection : IEnumerable
+    public class CGehaltCollection : IEnumerable<CGehalt>
     {
         private readonly CGehalt[] _gehaltcollection;
 
@@ -30,20 +31,29 @@ namespace Gehalt
         }
 
         /// <summary>
-        /// liefert die Objekte der Aufzählung einzeln zurück
+        /// der generische GetEnumerator liefert die typisierten Objekte der Aufzählung einzeln zurück
         /// </summary>
         /// <returns>jeweils ein Objekt der Aufzählung</returns>
-        public IEnumerator GetEnumerator()
+        public IEnumerator<CGehalt> GetEnumerator()
         {
-            // die einfache Variante: den bereits bestehenden Enumerator nutzen
-            //return _gehaltcollection.GetEnumerator();
-
             // die Variante "zu Fuß": einen neuen Enumerator bauen, der alle Einträge in der Aufzählung einzeln zurückgibt
             for (int i = 0; i < _gehaltcollection.Length; i++)
                 yield return _gehaltcollection[i];
+
+            // die einfache Variante: den bereits bestehenden Enumerator nutzen
+            //return ((IEnumerable<CGehalt>)_gehaltcollection).GetEnumerator();
         }
 
+        /// <summary>
+        /// Der nichtgenerische GetEnumerator wird von der Schnittstelle erzwungen
+        /// </summary>
+        /// <returns>jeweils ein Objekt der Aufzählung</returns>
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
     }
+
     public class CGehalt
     {
         public CGehalt(decimal b) { Betrag = b; }
@@ -74,7 +84,7 @@ namespace Gehalt
             // mal sehen, was da so drin steht...
             foreach (var item in GehaltCollection)
             {
-                Console.WriteLine(((CGehalt)item).Betrag.ToString("#,#.00#").PadLeft(10));
+                Console.WriteLine(item.Betrag.ToString("#,#.00#").PadLeft(10));
             }
             Console.ReadLine();
         }
